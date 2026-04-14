@@ -1,12 +1,12 @@
 pipeline {
     agent any
 
-    stages {
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/Yogita2708/Personality-quiz-miniproject-ci-cd.git'
-            }
-        }
+    stage('Checkout') {
+    steps {
+        // ✅ This must match your new repo name exactly
+        git 'https://github.com/Yogita2708/personality-quiz-MP-CICD.git'
+    }
+}
         stage('Build Docker Image') {
             steps {
                 // Changed sh to bat
