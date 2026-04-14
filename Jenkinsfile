@@ -22,21 +22,27 @@ pipeline {
         stage('Deploy to AWS Mumbai') {
             steps {
                 script {
-                    echo "🚀 Deploying to Mumbai Server: ${SERVER_IP}"
+                    def serverIp = "13.127.83.173"
+                    echo "🚀 Deploying to Mumbai Server: ${serverIp}"
                     
-                    /* This uses 'withCredentials' which creates a temporary 
-                       secret file. It is much more stable on Windows than 'sshagent'.
-                    */
                     withCredentials([sshUserPrivateKey(credentialsId: 'aws-mumbai-key', keyFileVariable: 'SSH_KEY')]) {
                         bat """
                             @echo off
-                            ssh -i %SSH_KEY% -o StrictHostKeyChecking=no ubuntu@${SERVER_IP} "sudo docker stop quiz-app || true && sudo docker rm quiz-app || true && sudo docker run -d --name quiz-app -p 7000:80 ${DOCKER_IMAGE}"
+                            :: 1. Disable inheritance (strips the 'Users' group)
+                            icacls "%SSH_KEY%" /inheritance:r
+                            
+                            :: 2. Grant only the current user and SYSTEM read access
+                            icacls "%SSH_KEY%" /grant:r *S-1-5-18:R
+                            icacls "%SSH_KEY%" /grant:r "%USERNAME%":R
+                            
+                            :: 3. Run the SSH command
+                            ssh -i "%SSH_KEY%" -o StrictHostKeyChecking=no ubuntu@${serverIp} "sudo docker stop quiz-app || true && sudo docker rm quiz-app || true && sudo docker run -d --name quiz-app -p 7000:80 ${DOCKER_IMAGE}"
                         """
                     }
                 }
             }
         }
-    }
+    } // <--- This was missing! It closes the "stages" block.
 
     post {
         success {
@@ -47,4 +53,4 @@ pipeline {
             echo "❌ Build Failed. Check Console Output."
         }
     }
-}
+} // <--- Final bracket that closes the whole "pipeline".
