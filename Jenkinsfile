@@ -2,49 +2,35 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
-            steps {
-                // Fixed the URL to your new repository
-                git 'https://github.com/Yogita2708/personality-quiz-MP-CICD.git'
-            }
-        }
-
+        // REMOVED the manual 'Checkout' stage because Jenkins does it automatically
+        
         stage('Build Docker Image') {
             steps {
-                // Using 'bat' for Windows Jenkins
                 bat 'docker build -t personality-quiz:latest .'
             }
         }
 
-        stage('Test Docker') {
+        stage('Deploy to AWS Mumbai') {
             steps {
-                bat 'docker ps'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                // Windows-friendly file check
-                bat 'if exist index.html echo "File exists - PASS"'
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                // Use 'exit 0' to prevent errors if container doesn't exist yet
-                bat 'docker stop quiz-app || exit 0'
-                bat 'docker rm quiz-app || exit 0'
-                bat 'docker run -d --name quiz-app -p 7000:80 personality-quiz:latest'
+                script {
+                    def serverIp = "13.206.122.231"
+                    echo "Deploying to ${serverIp}..."
+                    
+                    // This command runs SSH from your Jenkins machine to AWS
+                    bat """
+                        ssh -i my-key.pem -o StrictHostKeyChecking=no ubuntu@${serverIp} "sudo docker stop quiz-app || true && sudo docker rm quiz-app || true && sudo docker run -d --name quiz-app -p 7000:80 personality-quiz:latest"
+                    """
+                }
             }
         }
     }
 
     post {
         success {
-            echo '✅ Deployment Successful!'
+            echo "✅ Deployment Successful! Check: http://13.206.122.231:7000"
         }
         failure {
-            echo '❌ Build Failed - Check logs'
+            echo '❌ Build Failed'
         }
     }
 }
