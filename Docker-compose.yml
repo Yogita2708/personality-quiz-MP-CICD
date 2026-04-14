@@ -3,5 +3,5 @@ services:
   quiz-app:
     build: .
     ports:
-      - "7000:7000"   # your browser hits localhost:7000
+      - "7000:80"   # your browser hits localhost:7000
     restart: always

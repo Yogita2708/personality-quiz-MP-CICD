@@ -4,15 +4,20 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Pull code from GitHub
-                git 'https://github.com/YOUR_USERNAME/personality-quiz.git'
+        // Use your real GitHub link here
+                 git 'https://github.com/Yogita2708/Personality-quiz-miniproject-ci-cd.git'
             }
-        }
+       }
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t personality-quiz:latest .'
             }
         }
+        stage('Test Docker') {
+            steps {
+                 bat 'docker ps'
+           }
+       }
         stage('Test') {
             steps {
                 // Check the HTML file exists (simple test)
@@ -23,7 +28,7 @@ pipeline {
             steps {
                 sh 'docker stop quiz-app || true'
                 sh 'docker rm quiz-app || true'
-                sh 'docker run -d --name quiz-app -p 8080:80 personality-quiz:latest'
+                sh 'docker run -d --name quiz-app -p 7000:80 personality-quiz:latest'
             }
         }
     }
