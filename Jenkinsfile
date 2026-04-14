@@ -22,24 +22,21 @@ pipeline {
             }
         }
 
-        stage('Deploy to AWS Mumbai') {
-            steps {
-                script {
-                    echo "🚀 Deploying to Mumbai Server: ${SERVER_IP}"
-                    
-                    /* This block uses the Jenkins SSH Agent. 
-                       Requirement: You must have created a credential in Jenkins 
-                       with the ID 'aws-mumbai-key'.
-                    */
-                    sshagent(['aws-mumbai-key']) {
-                        bat """
-                            ssh -o StrictHostKeyChecking=no ubuntu@${SERVER_IP} "sudo docker stop quiz-app || true && sudo docker rm quiz-app || true && sudo docker run -d --name quiz-app -p 7000:80 ${DOCKER_IMAGE}"
-                        """
-                    }
-                }
+       stage('Deploy to AWS Mumbai') {
+    steps {
+        script {
+            def serverIp = "13.127.83.173"
+            // We use 'withCredentials' instead of 'sshagent' to avoid the Java error
+            withCredentials([sshUserPrivateKey(credentialsId: 'aws-mumbai-key', keyFileVariable: 'SSH_KEY')]) {
+                bat """
+                    @echo off
+                    rem Use the temporary key file created by Jenkins
+                    ssh -i %SSH_KEY% -o StrictHostKeyChecking=no ubuntu@${serverIp} "sudo docker stop quiz-app || true && sudo docker rm quiz-app || true && sudo docker run -d --name quiz-app -p 7000:80 personality-quiz:latest"
+                """
             }
         }
     }
+}
 
     post {
         success {
