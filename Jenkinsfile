@@ -13,7 +13,7 @@ pipeline {
         stage('Deploy to AWS Mumbai') {
             steps {
                 script {
-                    def serverIp = "13.206.122.231"
+                    def serverIp = "13.127.83.173"
                     echo "Deploying to ${serverIp}..."
                     
                     // This command runs SSH from your Jenkins machine to AWS
@@ -27,7 +27,7 @@ pipeline {
 
     post {
         success {
-            echo "✅ Deployment Successful! Check: http://13.206.122.231:7000"
+            echo "✅ Deployment Successful! Check: http://13.127.83.173:7000"
         }
         failure {
             echo '❌ Build Failed'
