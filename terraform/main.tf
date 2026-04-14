@@ -28,7 +28,7 @@ resource "aws_security_group" "quiz_sg" {
 # 3. Define the EC2 Instance (The Cloud Server)
 resource "aws_instance" "quiz_server" {
   ami           = "ami-0dee22c13ea7a9a67" # Ubuntu 24.04 LTS AMI for ap-south-1
-  instance_type = "t2.micro"             # Free-tier eligible instance
+  instance_type = "t3.micro"             # Free-tier eligible instance
 
   # Attach the Security Group defined above
   vpc_security_group_ids = [aws_security_group.quiz_sg.id]
