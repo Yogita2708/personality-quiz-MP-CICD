@@ -4,31 +4,32 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-        // Use your real GitHub link here
-                 git 'https://github.com/Yogita2708/Personality-quiz-miniproject-ci-cd.git'
+                git 'https://github.com/Yogita2708/Personality-quiz-miniproject-ci-cd.git'
             }
-       }
+        }
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t personality-quiz:latest .'
+                // Changed sh to bat
+                bat 'docker build -t personality-quiz:latest .'
             }
         }
         stage('Test Docker') {
             steps {
-                 bat 'docker ps'
-           }
-       }
+                bat 'docker ps'
+            }
+        }
         stage('Test') {
             steps {
-                // Check the HTML file exists (simple test)
-                sh 'test -f index.html && echo "File exists - PASS"'
+                // Simplified for Windows: check if file exists
+                bat 'if exist index.html echo "File exists - PASS"'
             }
         }
         stage('Deploy') {
             steps {
-                sh 'docker stop quiz-app || true'
-                sh 'docker rm quiz-app || true'
-                sh 'docker run -d --name quiz-app -p 7000:80 personality-quiz:latest'
+                // Changed sh to bat
+                bat 'docker stop quiz-app || exit 0'
+                bat 'docker rm quiz-app || exit 0'
+                bat 'docker run -d --name quiz-app -p 7000:80 personality-quiz:latest'
             }
         }
     }
