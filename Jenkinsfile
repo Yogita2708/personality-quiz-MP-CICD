@@ -19,31 +19,27 @@ pipeline {
             }
         }
 
-        stage('Deploy to AWS Mumbai') {
-            steps {
-                script {
-                    def serverIp = "13.127.83.173"
-                    echo "🚀 Deploying to Mumbai Server: ${serverIp}"
+stage('Deploy to AWS Mumbai') {
+    steps {
+        script {
+            def serverIp = "13.127.83.173"
+            echo "🚀 Transferring and Deploying to: ${serverIp}"
+            
+            withCredentials([sshUserPrivateKey(credentialsId: 'aws-mumbai-key', keyFileVariable: 'SSH_KEY')]) {
+                bat """
+                    @echo off
+                    :: 1. Fix permissions on the temporary key
+                    icacls "%SSH_KEY%" /inheritance:r
+                    icacls "%SSH_KEY%" /grant:r *S-1-5-18:R
                     
-                    withCredentials([sshUserPrivateKey(credentialsId: 'aws-mumbai-key', keyFileVariable: 'SSH_KEY')]) {
-                        bat """
-                            @echo off
-                            :: 1. Disable inheritance (strips the 'Users' group)
-                            icacls "%SSH_KEY%" /inheritance:r
-                            
-                            :: 2. Grant only the current user and SYSTEM read access
-                            icacls "%SSH_KEY%" /grant:r *S-1-5-18:R
-                            icacls "%SSH_KEY%" /grant:r "%USERNAME%":R
-                            
-                            :: 3. Run the SSH command
-                            ssh -i "%SSH_KEY%" -o StrictHostKeyChecking=no ubuntu@${serverIp} "sudo docker stop quiz-app || true && sudo docker rm quiz-app || true && sudo docker run -d --name quiz-app -p 7000:80 ${DOCKER_IMAGE}"
-                        """
-                    }
-                }
+                    :: 2. Transfer the image AND run it (The "Magic" Pipe)
+                    docker save personality-quiz:latest | ssh -i "%SSH_KEY%" -o StrictHostKeyChecking=no ubuntu@${serverIp} "docker load && sudo docker stop quiz-app || true && sudo docker rm quiz-app || true && sudo docker run -d --name quiz-app -p 7000:80 personality-quiz:latest"
+                """
             }
         }
-    } // <--- This was missing! It closes the "stages" block.
-
+    }
+}
+}
     post {
         success {
             echo "✅ Deployment Successful!"
