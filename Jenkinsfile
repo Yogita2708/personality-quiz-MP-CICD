@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        SERVER_IP = "13.201.127.79"
+        SERVER_IP = "52.66.153.245"
         DOCKER_IMAGE = "personality-quiz:latest"
     }
 
@@ -22,7 +22,7 @@ pipeline {
 stage('Deploy to AWS Mumbai') {
     steps {
         script {
-            def serverIp = "13.201.127.79"
+            def serverIp = "52.66.153.245"
             echo "🚀 Transferring and Deploying to: ${serverIp}"
             
             withCredentials([sshUserPrivateKey(credentialsId: 'aws-mumbai-key', keyFileVariable: 'SSH_KEY')]) {
@@ -49,4 +49,6 @@ stage('Deploy to AWS Mumbai') {
             echo "❌ Build Failed. Check Console Output."
         }
     }
-} // <--- Final bracket that closes the whole "pipeline".
+    
+} // <--- Final bracket that closes the whole "pipeline".stage('Push to Docker Hub') {
+   
