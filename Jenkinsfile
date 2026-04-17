@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        SERVER_IP = "52.66.153.245"
+        SERVER_IP = "3.108.56.168"
         DOCKER_IMAGE = "personality-quiz:latest"
     }
 
@@ -22,7 +22,7 @@ pipeline {
 stage('Deploy to AWS Mumbai') {
     steps {
         script {
-            def serverIp = "52.66.153.245"
+            def serverIp = "3.108.56.168"
             echo "🚀 Transferring and Deploying to: ${serverIp}"
             
             withCredentials([sshUserPrivateKey(credentialsId: 'aws-mumbai-key', keyFileVariable: 'SSH_KEY')]) {
